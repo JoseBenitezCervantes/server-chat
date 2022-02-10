@@ -11,8 +11,8 @@ const chatController = (io) => (socket) => {
     //Se envian los mensajes anteriores
     const mensajes = await Mensaje.find();
     socket.emit("mensajesHistory", mensajes);
-    
-    //Cuando el usuario entra al chat se le infoma a los demas 
+
+    //Cuando el usuario entra al chat se le infoma a los demas
     socket.broadcast.emit("mensajes", {
       nombre: "Servidor",
       mensaje: `${nombre} se ha unido al chat!`,
@@ -20,7 +20,7 @@ const chatController = (io) => (socket) => {
     });
   });
 
-  //Se envian y guardan los mensajes 
+  //Se envian y guardan los mensajes
   socket.on("mensaje", async (nombre, mensajeClient) => {
     const mensaje = new Mensaje({ nombre, mensaje: mensajeClient, date });
     await mensaje.save(mensaje);
@@ -29,11 +29,13 @@ const chatController = (io) => (socket) => {
 
   //Se informa que un cliente se desconecto
   socket.on("disconnect", () => {
-    socket.broadcast.emit("mensajes", {
-      nombre: "Servidor",
-      mensaje: `${nombre} ha abandonado el chat!`,
-      date,
-    });
+    if (nombre) {
+      socket.broadcast.emit("mensajes", {
+        nombre: "Servidor",
+        mensaje: `${nombre} ha abandonado el chat!`,
+        date,
+      });
+    }
   });
 };
 
